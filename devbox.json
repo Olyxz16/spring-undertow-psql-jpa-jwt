@@ -1,0 +1,35 @@
+{
+  "packages": [
+    "graalvm-ce@latest",
+    "maven@3.9.11",
+    "postgresql@17.7"
+  ],
+  "env": {
+    "DATABASE_URL": "jdbc:postgresql://localhost:5432/postgres",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_PASSWORD": "postgres",
+    "PGDATA": ".devbox/pg_data",
+    "DDL_AUTO": "validate",
+    "GOOGLE_CLIENT_ID": "<placeholder_id>",
+    "GOOGLE_CLIENT_SECRET": "<placeholder_secret>"
+  },
+  "shell": {
+    "init_hook": [
+      "echo Light Spring Environment Loaded",
+      "echo Java: $(java -version 2>&1 | head -n 1)",
+      "echo Native Image: $(native-image --version)",
+      "",
+      "if [ ! -d $PGDATA ]; then",
+      "  echo 'Initializing Local PostgreSQL...'",
+      "  initdb -D $PGDATA -U postgres > /dev/null",
+      "fi"
+    ],
+    "scripts": {
+      "up": "devbox run db:start && devbox run app:run",
+      "app:run": "mvn spring-boot:run",
+      "app:build-native": "mvn -Pnative native:compile",
+      "app:run-native": "./target/template",
+      "db:diff": "./mvnw compile liquibase:diff"
+    }
+  }
+}
